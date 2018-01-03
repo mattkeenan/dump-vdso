@@ -18,6 +18,8 @@ foreach my $map_ent (@map)
   print STDERR "start: $start finish: $2 size: $size\n";
 }
 
+# convert a text hex address to a real memory object of the right size
+# from the vdso mapping
 my $buff=unpack("P$size",pack('Q',hex($start)));
 
 open(my $vdso_dump,">","vdso.elf") or die("open: vdso.elf: $!");
