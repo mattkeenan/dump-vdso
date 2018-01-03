@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# Copyright 2017-2018 Matt Keenan <matt@mattkeenan.net>
+# Licensed under GPL 3.0 or newer
+
+use strict;
+
+open(my $proc_maps,"<","/proc/$$/maps") or die("open: /proc/$$/maps: $!");
+my @map=<$proc_maps>;
+close($proc_maps);
+
+my ($start,$size);
+foreach my $map_ent (@map)
+{
+  next unless $map_ent=~m/^([0-9a-f]+)-([0-9a-f]+) .* \[vdso\]$/;
+
+  $size=hex($2)-hex($1);
+  $start=$1;
+  print STDERR "start: $start finish: $2 size: $size\n";
+}
+
+my $buff=unpack("P$size",pack('Q',hex($start)));
+
+open(my $vdso_dump,">","vdso.elf") or die("open: vdso.elf: $!");
+syswrite($vdso_dump,$buff,$size);
+close($vdso_dump);
